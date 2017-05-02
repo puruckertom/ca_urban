@@ -1,5 +1,5 @@
 #####
-setwd(dir = 'C:/Users/Ckuan/Dropbox/orise_carmen/urban pesticides/data')
+setwd(dir = '~/Dropbox/orise_carmen/urban pesticides/data')
 library(ggplot2)
 library(dplyr)
 library(reshape2)
@@ -67,69 +67,20 @@ pest_calc_2015<- Fresno_Madera_2015 %>%
   mutate(chem_calc = as.numeric(POUNDS_PRODUCT_APPLIED) * (as.numeric(levels(PRODUCT_CHEMICAL_PERCENT))[PRODUCT_CHEMICAL_PERCENT])/100) %>%
   filter(!is.na(chem_calc)) 
 
-#combine all Fresno_Madera data
-FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, 
-                                   pest_calc_2009, pest_calc_2010, pest_calc_2011,
-                                   pest_calc_2012, pest_calc_2013, pest_calc_2014, 
-                                   pest_calc_2015)
+# combine all Fresno_Madera data
+FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, pest_calc_2009, 
+                               pest_calc_2010, pest_calc_2011, pest_calc_2012, pest_calc_2013, 
+                               pest_calc_2014, pest_calc_2015)
 
-
-#filter data by unique chemicals, sum total use, and subset top 20 chemicals
-chemical_sum_2006 <- pest_calc_2006 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2007 <- pest_calc_2007 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2008 <- pest_calc_2008 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2009 <- pest_calc_2009 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2010 <- pest_calc_2010 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2011 <- pest_calc_2011 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2012 <- pest_calc_2012 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2013 <- pest_calc_2013 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2014 <- pest_calc_2014 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
-chemical_sum_2015 <- pest_calc_2015 %>%
-  select(CHEMICAL_NAME, chem_calc) %>%
-  group_by(CHEMICAL_NAME) %>%
+# filter data by unique chemicals, sum total use per chemical, and subset top 20 chemicals by year and county
+TotalAppliedPerChemical <- FresnoMadera_PestCalc %>%
+  select(YEAR, COUNTY_NAME, CHEMICAL_NAME, chem_calc) %>%
+  group_by(CHEMICAL_NAME, YEAR, COUNTY_NAME) %>%
   summarise(sum_per_chemical = sum(chem_calc)) %>%
   top_n(20, sum_per_chemical)
 
-#combine datasets
-top_chemicals <- full_join(chemical_sum_2006,chemical_sum_2007, by= "CHEMICAL_NAME")
-
-ggplot(chemical_sum_2015, aes(x=CHEMICAL_NAME, y = sum_per_chemical)) +
+# plot
+ggplot(TotalAppliedPerChemical, aes(x=CHEMICAL_NAME, y = sum_per_chemical)) +
   geom_bar(stat='identity') +
   coord_flip()
 
