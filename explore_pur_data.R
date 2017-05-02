@@ -1,5 +1,23 @@
 #####
-setwd(dir = '~/Dropbox/orise_carmen/urban pesticides/data')
+if(Sys.info()[4]=="DZ2626UTPURUCKE"){
+#  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")
+}
+#tom mac air
+if(Sys.info()[4]=="stp-air"){
+#  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")#
+}
+#carmen personal laptop
+if(Sys.info()[4]=="Ashleys-MBP"||Sys.info()[4]=="Ashleys-MacBook-Pro-2.local"||
+   Sys.info()[4]=="Ashleys-MBP-2"||Sys.info()[4]=="Ashleys-MacBook-Pro.local") {
+  UserPwd<-path.expand("~/")
+}
+#carmen epa desktop 2
+if(Sys.info()[4]=="DZ2626UCKUAN"){
+  UserPwd<-path.expand("C:/Users/CKuan/")
+}
+
+setwd(dir = paste(UserPwd, 'Dropbox/orise_carmen/urban pesticides/data', sep = ''))
+getwd()
 library(ggplot2)
 library(dplyr)
 library(reshape2)
@@ -74,13 +92,14 @@ FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, p
 
 # filter data by unique chemicals, sum total use per chemical, and subset top 20 chemicals by year and county
 TotalAppliedPerChemical <- FresnoMadera_PestCalc %>%
-  select(YEAR, COUNTY_NAME, CHEMICAL_NAME, chem_calc) %>%
+  select(YEAR, COUNTY_NAME,CHEMICAL_NAME, chem_calc) %>%
   group_by(CHEMICAL_NAME, YEAR, COUNTY_NAME) %>%
   summarise(sum_per_chemical = sum(chem_calc)) %>%
-  top_n(20, sum_per_chemical)
+  filter(sum_per_chemical>500)
 
 # plot
 ggplot(TotalAppliedPerChemical, aes(x=CHEMICAL_NAME, y = sum_per_chemical)) +
-  geom_bar(stat='identity') +
-  coord_flip()
+  geom_bar(aes(fill= COUNTY_NAME), position = "dodge", stat = "identity",na.rm = TRUE) +
+  coord_flip() +
+  facet_wrap(~ YEAR, nrow=1)
 
