@@ -1,4 +1,4 @@
-#####
+#####SET-UP
 if(Sys.info()[4]=="DZ2626UTPURUCKE"){
 #  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")
 }
@@ -21,7 +21,7 @@ getwd()
 library(ggplot2)
 library(dplyr)
 library(reshape2)
-#####
+#####BEGIN
 #read in CA PUR text files of Rights-of-Way pesticide applications
 for (i in 2006:2015){
   assign(paste('RoW_', i, sep=''), read.table(file = paste(i, '_RightsofWay.txt', sep=''), sep = "\t", header = T, fill = T, strip.white = T))
@@ -94,11 +94,11 @@ FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, p
 TotalAppliedPerChemical <- FresnoMadera_PestCalc %>%
   select(YEAR, COUNTY_NAME,CHEMICAL_NAME, chem_calc) %>%
   group_by(CHEMICAL_NAME, YEAR, COUNTY_NAME) %>%
-  summarise(sum_per_chemical = sum(chem_calc)) %>%
-  filter(sum_per_chemical>500)
-
+  mutate(total_lbs_per_mile = if(COUNTY_NAME=="FRESNO") (sum(chem_calc)/9190.918987) else (sum(chem_calc)/7282.631774)) %>%
+  filter(total_lbs_per_mile> 0.02)
+  
 # plot
-ggplot(TotalAppliedPerChemical, aes(x=CHEMICAL_NAME, y = sum_per_chemical)) +
+ggplot(TotalAppliedPerChemical, aes(x=CHEMICAL_NAME, y = total_lbs_per_mile)) +
   geom_bar(aes(fill= COUNTY_NAME), position = "dodge", stat = "identity",na.rm = TRUE) +
   coord_flip() +
   facet_wrap(~ YEAR, nrow=1)

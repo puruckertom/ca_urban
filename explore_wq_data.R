@@ -27,5 +27,5 @@ library(reshape2)
 FresnoWQ_2005_2015 <- read.csv(file = "FresnoWQ_2005_2015.csv", header = T)
 MaderaWQ_2005_2015 <- read.csv(file = "MaderaWQ_2005_2015.csv", header = T)
 
-FresnoWQ_2005_2015 %>% select(OrganizationFormalName, ActivityIdentifier, ActivityMediaName,
-                              ActivityStartDate, ActivityEndDate, )
+FresnoWQ_2005_2015 %>% select(OrganizationFormalName, ActivityIdentifier, ActivityStartDate, 
+                              ActivityEndDate, ResultStatusIdentifier)
