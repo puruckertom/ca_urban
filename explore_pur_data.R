@@ -1,6 +1,6 @@
 #####
 if(Sys.info()[4]=="DZ2626UTPURUCKE"){
-#  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")
+  UserPwd<-path.expand("k:/git/db/")
 }
 #tom mac air
 if(Sys.info()[4]=="stp-air"){
