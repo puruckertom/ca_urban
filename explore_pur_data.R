@@ -94,11 +94,17 @@ FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, p
 TotalAppliedPerChemical <- FresnoMadera_PestCalc %>%
   select(YEAR, COUNTY_NAME,CHEMICAL_NAME, chem_calc) %>%
   group_by(CHEMICAL_NAME, YEAR, COUNTY_NAME) %>%
-  mutate(total_lbs_per_mile = if(COUNTY_NAME=="FRESNO") (sum(chem_calc)/9190.918987) else (sum(chem_calc)/7282.631774)) %>%
-  filter(total_lbs_per_mile> 0.02)
+  mutate(total_lbs_per_mile = if(COUNTY_NAME=="FRESNO") (cumsum(chem_calc)/9190.918987) else (cumsum(chem_calc)/7282.631774))
+
+# subset top 10 chemicals used per county per year
+Top10Chemicals <- TotalAppliedPerChemical %>%
+  select(YEAR, COUNTY_NAME, CHEMICAL_NAME, total_lbs_per_mile) %>%
+  group_by(YEAR, COUNTY_NAME, CHEMICAL_NAME) %>%
+  arrange(CHEMICAL_NAME, desc(total_lbs_per_mile)) %>%
+  top_n(10,total_lbs_per_mile)
   
 # plot
-ggplot(TotalAppliedPerChemical, aes(x=CHEMICAL_NAME, y = total_lbs_per_mile)) +
+ggplot(Top10Chemicals, aes(x=CHEMICAL_NAME, y = total_lbs_per_mile)) +
   geom_bar(aes(fill= COUNTY_NAME), position = "dodge", stat = "identity",na.rm = TRUE) +
   coord_flip() +
   facet_wrap(~ YEAR, nrow=1)

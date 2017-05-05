@@ -21,11 +21,33 @@ getwd()
 library(ggplot2)
 library(dplyr)
 library(reshape2)
+library(dataRetrieval)
+library(leaflet)
 #####
+# stateid<- stateCdLookup("California", "id")
+# californiaWQData<- readWQPqw()
 
 #read in Water Quality CSV files of pesticide sampling
 FresnoWQ_2005_2015 <- read.csv(file = "FresnoWQ_2005_2015.csv", header = T)
 MaderaWQ_2005_2015 <- read.csv(file = "MaderaWQ_2005_2015.csv", header = T)
 
-FresnoWQ_2005_2015 %>% select(OrganizationFormalName, ActivityIdentifier, ActivityStartDate, 
-                              ActivityEndDate, ResultStatusIdentifier)
+FresnoWQData<- FresnoWQ_2005_2015 %>% 
+  select(OrganizationFormalName, ActivityStartDate, MonitoringLocationIdentifier, 
+         CharacteristicName, ResultMeasureValue, ResultMeasure.MeasureUnitCode, 
+         ResultStatusIdentifier, ResultValueTypeName, USGSPCode, AnalysisStartDate, 
+         DetectionQuantitationLimitMeasure.MeasureValue, 
+         DetectionQuantitationLimitMeasure.MeasureUnitCode, ProviderName) %>%
+  filter(!is.na(ResultMeasureValue)) %>%
+  arrange(ActivityStartDate)
+
+MaderaWQData<- MaderaWQ_2005_2015 %>% 
+  select(OrganizationFormalName, ActivityStartDate, MonitoringLocationIdentifier, 
+         CharacteristicName, ResultMeasureValue, ResultMeasure.MeasureUnitCode, 
+         ResultStatusIdentifier, ResultValueTypeName, USGSPCode, AnalysisStartDate, 
+         DetectionQuantitationLimitMeasure.MeasureValue, 
+         DetectionQuantitationLimitMeasure.MeasureUnitCode, ProviderName) %>%
+  filter(!is.na(ResultMeasureValue)) %>%
+  arrange(ActivityStartDate)
+
+FresnoSites <- unique(FresnoWQData$MonitoringLocationIdentifier)
+MaderaSites <- unique(MaderaWQData$MonitoringLocationIdentifier)
