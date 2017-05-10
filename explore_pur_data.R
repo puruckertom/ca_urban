@@ -44,8 +44,8 @@ Fresno_Madera_2015 <- filter(RoW_2015, COUNTY_NAME=="FRESNO" | COUNTY_NAME=="MAD
 IndLic_FresnoMadera <- filter(IndivLicenses, County == "FRESNO" | County == "MADERA")
 BusLic_FresnoMadera <- filter(BusiLicenses, County == "FRESNO" | County == "MADERA")
 Licenses_FresnoMadera <- IndLic_FresnoMadera %>%
-  full_join(BusLic_FresnoMadera, by = "License.No") %>%
-  rename(LICENSE_NUMBER = License.No)
+  union_all(BusLic_FresnoMadera, by = "License.No") %>%
+  rename(LICENSE_NUMBER = License.No, COUNTY_NAME=County)
 
 
 #calculate pesticide usage
@@ -97,14 +97,14 @@ pest_calc_2015<- Fresno_Madera_2015 %>%
 FresnoMadera_PestCalc <- rbind(pest_calc_2006, pest_calc_2007, pest_calc_2008, pest_calc_2009, 
                                pest_calc_2010, pest_calc_2011, pest_calc_2012, pest_calc_2013, 
                                pest_calc_2014, pest_calc_2015)
-
 CompDF <- FresnoMadera_PestCalc %>%
-  full_join(Licenses_FresnoMadera, by = "LICENSE_NUMBER")
+  mutate_each(funs(as.integer), LICENSE_NUMBER) %>%
+  full_join(Licenses_FresnoMadera, by = c("LICENSE_NUMBER","COUNTY_NAME"))
 
 
 # filter data by unique chemicals, sum total use per chemical, and subset top 20 chemicals by year and county
-TotalAppliedPerChemical <- FresnoMadera_PestCalc %>%
-  select(YEAR, COUNTY_NAME,CHEMICAL_NAME, chem_calc) %>%
+TotalAppliedPerChemical <- CompDF %>%
+  select(YEAR, COUNTY_NAME, PRODUCT_NAME, CHEMICAL_NAME, chem_calc, LICENSE_NUMBER, Address, City, State, Zip) %>%
   group_by(CHEMICAL_NAME, YEAR, COUNTY_NAME) %>%
   mutate(total_lbs_per_mile = if(COUNTY_NAME=="FRESNO") (cumsum(chem_calc)/9190.918987) else (cumsum(chem_calc)/7282.631774))
 
