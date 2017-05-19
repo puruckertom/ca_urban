@@ -36,12 +36,61 @@ df_MissingChemNames<- df %>%
 
 Prod_Chem <- df %>%
   filter(!is.na(CHEMICAL_NAME)) %>%
-  distinct(REGISTRATION_NUMBER, PRODUCT_NAME, CHEMICAL_NAME)
+  distinct(REGISTRATION_NUMBER, PRODUCT_NAME, CHEMICAL_NAME, PRODUCT_CHEMICAL_PERCENT)
 
 chemfill <- df_MissingChemNames %>%
-  left_join(Prod_Chem, by = "REGISTRATION_NUMBER") %>%
-  distinct(REGISTRATION_NUMBER, CHEMICAL_NAME) %>%
+  left_join(Prod_Chem, by = c("REGISTRATION_NUMBER", "PRODUCT_NAME")) %>%
+  distinct(REGISTRATION_NUMBER, PRODUCT_NAME, CHEMICAL_NAME, PRODUCT_CHEMICAL_PERCENT) %>%
   filter(!is.na(CHEMICAL_NAME))
 
-df_filled <- df %>% 
-  left_join(chemfill, by = "REGISTRATION_NUMBER")
+df_match <- df %>% 
+  left_join(chemfill, by = c("REGISTRATION_NUMBER", "PRODUCT_NAME", "CHEMICAL_NAME", "PRODUCT_CHEMICAL_PERCENT"))
+
+
+#calculate pesticide usage
+df_calc<- df_match %>%
+  #select relevant columns
+  select(YEAR, APPLICATION_MONTH, COUNTY_NAME, PRODUCT_NAME, CHEMICAL_NAME, PRODUCT_CHEMICAL_PERCENT, AG_NONAG, POUNDS_PRODUCT_APPLIED,POUNDS_CHEMICAL_APPLIED) %>%
+  #calculate applied amounts of pesticide (lbs) per entry
+  mutate(chem_calc = as.numeric(POUNDS_PRODUCT_APPLIED) * (as.numeric(PRODUCT_CHEMICAL_PERCENT)/100))
+
+df_na <- df_calc %>%
+  #filter NAs
+  filter(is.na(chem_calc))
+
+df_filled <- df_calc %>%
+  filter(!is.na(chem_calc))
+
+
+# filter data by unique chemicals, sum total use per chemical, and subset top 20 chemicals by year and county
+TotalAppliedPerChemical <- df_filled %>%
+  select(YEAR, COUNTY_NAME, PRODUCT_NAME, CHEMICAL_NAME, chem_calc) %>%
+  group_by(YEAR, CHEMICAL_NAME) %>%
+  mutate(total_lbs_per_mile = if(YEAR=="2006") (sum(chem_calc)/170296.67) 
+         else if(YEAR=="2007") (sum(chem_calc)/171154.13) 
+         else if(YEAR=="2008") (sum(chem_calc)/172511.33) 
+         else if(YEAR=="2009") (sum(chem_calc)/171873.92)
+         else if(YEAR=="2010") (sum(chem_calc)/172138.66)
+         else if(YEAR=="2011") (sum(chem_calc)/172201.63)
+         else if(YEAR=="2012") (sum(chem_calc)/175543.79)
+         else if(YEAR=="2013") (sum(chem_calc)/174991.13)
+         else if(YEAR=="2014") (sum(chem_calc)/174802.85)
+         else if(YEAR=="2015") (sum(chem_calc)/174802.85)) %>%
+  distinct(YEAR, CHEMICAL_NAME, total_lbs_per_mile) %>%
+  arrange(desc(total_lbs_per_mile))
+
+# subset top 10 chemicals used per county per year
+Top5Chemicals <- TotalAppliedPerChemical %>%
+  #filter(YEAR > 2009 & YEAR < 2015) %>%
+  arrange(YEAR, CHEMICAL_NAME, desc(lbs_per_mile_per_year)) %>%
+  top_n(5, lbs_per_mile_per_year)
+
+# plot
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7","#CC6666", "#9999CC", "#66CC99")
+ggplot(Top5Chemicals, aes(x=YEAR, y = lbs_per_mile_per_year, color=CHEMICAL_NAME, group=CHEMICAL_NAME)) +
+  geom_line(aes(group=factor(CHEMICAL_NAME)), size=1) +
+  scale_y_log10() +
+  scale_color_discrete() +
+  ylab("Pounds of A.I. (per mile) [log scale]") 
+
+
