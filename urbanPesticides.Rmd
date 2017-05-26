@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+SET-UP
+```{r}
+#####SET-UP ####
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(knitr)
+
+if(Sys.info()[4]=="DZ2626UTPURUCKE"){
+#  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")
+}
+#tom mac air
+if(Sys.info()[4]=="stp-air"){
+#  UserPwd<-path.expand("CHANGE TO WHERE YOU HAVE YOUR DROPBOX FOLDER")#
+}
+#carmen personal laptop
+if(Sys.info()[4]=="Ashleys-MBP"||Sys.info()[4]=="Ashleys-MacBook-Pro-2.local"||
+   Sys.info()[4]=="Ashleys-MBP-2"||Sys.info()[4]=="Ashleys-MacBook-Pro.local") {
+  UserPwd<-path.expand("~/")
+}
+#carmen epa desktop 2
+if(Sys.info()[4]=="DZ2626UCKUAN"){
+  UserPwd<-path.expand("C:/Users/CKuan/")
+}
+
+opts_knit$set(root.dir = paste(UserPwd, 'Dropbox/orise_carmen/urban pesticides/data', sep = ''))
+
+```
+WEATHER
+```{r}
+wID <- read.csv(file = "caCounties_metStations.csv")
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
