@@ -32,10 +32,12 @@ if(Sys.info()[4]=="DZ2626UCKUAN"){
 }
 
 opts_knit$set(root.dir = paste(UserPwd, 'Dropbox/orise_carmen/urban pesticides/data', sep = ''))
+setwd(dir = paste(UserPwd, 'Dropbox/orise_carmen/urban pesticides/data', sep = ''))
 
 ```
 WEATHER
 ```{r}
+setwd(dir = 'C:/Users/Ckuan/Dropbox/orise_carmen/urban pesticides/data')
 wID <- read.csv(file = "caCounties_metStations.csv")
 ```
 
