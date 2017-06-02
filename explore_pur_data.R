@@ -36,18 +36,19 @@ for (i in 2005:2014){
 caPop <- read.csv(file = "California_Population_1990_2014.csv", strip.white = T, fill = T)
 # CA Weather data
 caMet <- read.csv(file = "caCounties_metStations.csv", strip.white = T, fill = T)
-wID <- order(unique(caMet$stationID), decreasing = F)
-wDF <- array(data = NA, dim = c(19723,8,length(wID)))
-for (i in 1:length(wID)){
-  for(l in wID){
-    temp <- read.table(file = paste('J:/new_weather_files_10000/',l, '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
-  }
-  wDF[,,i] <- temp[,]
+wDF <- array(data = NA, dim = c(19723,8,length(caMet$stationID)))
+for(i in 1:length(caMet$stationID)){
+  ifelse (
+    caMet$stationID[i] <= 20000
+    , temp <- read.table(file = paste('J:/new_weather_files_20000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
+    , temp <- read.table(file = paste('J:/new_weather_files_30000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
+  )
+  wDF[,,i] <- abind(temp[,], along=3)
+  print(i)
 }
-
-
-write.table(data.frame(paste('caMet_',i,sep = '')), file= paste('met_weather/caMet_',i,'.txt',sep = ''))
-
+save(wDF, file = 'caMetWeather.RData')
+rm(wDF)
+load("caMetWeather.RData")
 
 ##### COMPILE DATA ####
 df <- rbind(RoW_2006,RoW_2007,RoW_2008,RoW_2009,RoW_2010,RoW_2011,RoW_2012,RoW_2013,RoW_2014,RoW_2015)
