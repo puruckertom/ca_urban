@@ -32,22 +32,22 @@ for (i in 2006:2015){
 for (i in 2005:2014){
   assign(paste('caRoads_', i, sep=''), read.csv(file = paste(i, '_caPublicRoads.csv', sep=''),strip.white = T,fill = T,stringsAsFactors = T))
 }
-# CA population 2004-2014
-caPop <- read.csv(file = "California_Population_1990_2014.csv", strip.white = T, fill = T)
-# CA Weather data
-caMet <- read.csv(file = "caCounties_metStations.csv", strip.white = T, fill = T)
-wDF <- array(data = NA, dim = c(19723,8,length(caMet$stationID)))
-for(i in 1:length(caMet$stationID)){
-  ifelse (
-    caMet$stationID[i] <= 20000
-    , temp <- read.table(file = paste('J:/new_weather_files_20000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
-    , temp <- read.table(file = paste('J:/new_weather_files_30000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
-  )
-  wDF[,,i] <- abind(temp[,], along=3)
-  print(i)
-}
-save(wDF, file = 'caMetWeather.RData')
-rm(wDF)
+# # CA population 2004-2014
+# caPop <- read.csv(file = "California_Population_1990_2014.csv", strip.white = T, fill = T)
+# # CA Weather data
+# caMet <- read.csv(file = "caCounties_metStations.csv", strip.white = T, fill = T)
+# wDF <- array(data = NA, dim = c(19723,8,length(caMet$stationID)))
+# for(i in 1:length(caMet$stationID)){
+#   ifelse (
+#     caMet$stationID[i] <= 20000
+#     , temp <- read.table(file = paste('J:/new_weather_files_20000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
+#     , temp <- read.table(file = paste('J:/new_weather_files_30000/', caMet$stationID[i], '_grid.wea', sep=''), sep = ",", header = F, fill = T, strip.white = T, na.strings = "N/A", stringsAsFactors = T)
+#   )
+#   wDF[,,i] <- abind(temp[,], along=3)
+#   print(i)
+# }
+#save(wDF, file = 'caMetWeather.RData')
+#rm(wDF)
 load("caMetWeather.RData")
 
 ##### COMPILE DATA ####
