@@ -30,9 +30,11 @@ nlcd_caCounties <- nlcd_caCounties_csv %>%
 
 nlcd_caCounties$histogram <-  substring(nlcd_caCounties$histogram, 2, nchar(nlcd_caCounties$histogram)-1)
 
-for (i in 1:dim(nlcd_caCounties)[1]){
-  assign(paste('nlcdFreq_',nlcd_caCounties$County.Name[i],sep=''), unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, '))))
-}
+for (i in 1:dim(nlcd_caCounties)[[1]]){
+ # assign(paste('nlcdFreq_',nlcd_caCounties$County.Name[i],sep=''), unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, '))))
+  nlcd_histograms[i] <- unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, ')))
+  }
+
 nlcd_v<- as.character(c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95))
 nlcd_k<- c('Open Water', 'Perennial Ice/Snow', 'Developed, Open Space', 'Developed, Low Intensity', 
   'Developed, Medium Intensity', 'Developed, High Intensity', 'Barren Land (Rock/Sand/Clay)',
@@ -41,4 +43,8 @@ nlcd_k<- c('Open Water', 'Perennial Ice/Snow', 'Developed, Open Space', 'Develop
   'Woody Wetlands', 'Emergent Herbaceous Wetlands')
 names(nlcd_v) <- nlcd_k
 
-
+nlcd_histograms <- array(data = NA, dim = c(58, 32))
+rownames(nlcd_histograms) <- nlcd_caCounties$County.Name
+for (i in 1:58){
+  nlcd_histograms[i,] <- unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, ')))
+}
