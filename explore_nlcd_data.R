@@ -31,8 +31,8 @@ nlcd_caCounties <- nlcd_caCounties_csv %>%
 nlcd_caCounties$histogram <-  substring(nlcd_caCounties$histogram, 2, nchar(nlcd_caCounties$histogram)-1)
 
 for (i in 1:dim(nlcd_caCounties)[[1]]){
- # assign(paste('nlcdFreq_',nlcd_caCounties$County.Name[i],sep=''), unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, '))))
-  nlcd_histograms[i] <- unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, ')))
+  assign(paste('nlcdFreq_',nlcd_caCounties$County.Name[i],sep=''), unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, '))))
+#  nlcd_histograms[i] <- unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, ')))
   }
 
 nlcd_v<- as.character(c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95))
@@ -43,8 +43,28 @@ nlcd_k<- c('Open Water', 'Perennial Ice/Snow', 'Developed, Open Space', 'Develop
   'Woody Wetlands', 'Emergent Herbaceous Wetlands')
 names(nlcd_v) <- nlcd_k
 
-nlcd_histograms <- array(data = NA, dim = c(58, 32))
-rownames(nlcd_histograms) <- nlcd_caCounties$County.Name
-for (i in 1:58){
-  nlcd_histograms[i,] <- unlist(strsplit(nlcd_caCounties$histogram[i], c('=|, ')))
+for (i in 1:dim(nlcd_caCounties)[[1]]){
+  county<- paste('nlcdFreq_', nlcd_caCounties$County.Name[i], sep = '')
+  data <- get(paste('nlcdFreq_', nlcd_caCounties$County.Name[i], sep = ''))
+  label<- na.omit(match(data, nlcd_v))
+  element<- c(which(data%in%nlcd_v))
+  data[element]<- names(nlcd_v[label])
+  assign(county, data)
 }
+
+nlcd_histograms <- rbind(nlcdFreq_Alameda,nlcdFreq_Alpine,nlcdFreq_Amador,nlcdFreq_Butte,
+                         nlcdFreq_Calaveras,nlcdFreq_Colusa,`nlcdFreq_Contra Costa`,
+                         `nlcdFreq_Del Norte`, `nlcdFreq_El Dorado`,nlcdFreq_Fresno, nlcdFreq_Glenn,
+                         nlcdFreq_Humboldt,nlcdFreq_Imperial,nlcdFreq_Inyo,nlcdFreq_Kern,
+                         nlcdFreq_Kings, nlcdFreq_Lake,nlcdFreq_Lassen,`nlcdFreq_Los Angeles`,
+                         nlcdFreq_Madera,nlcdFreq_Marin,nlcdFreq_Mariposa,nlcdFreq_Mendocino,
+                         nlcdFreq_Merced,nlcdFreq_Modoc,nlcdFreq_Mono,nlcdFreq_Monterey,nlcdFreq_Napa,
+                         nlcdFreq_Nevada,nlcdFreq_Orange,nlcdFreq_Placer,nlcdFreq_Plumas,nlcdFreq_Riverside,
+                         nlcdFreq_Sacramento,`nlcdFreq_San Benito`,`nlcdFreq_San Bernardino`,
+                         `nlcdFreq_San Diego`,`nlcdFreq_San Francisco`,`nlcdFreq_San Joaquin`,`nlcdFreq_San Luis Obispo`,
+                         `nlcdFreq_San Mateo`,`nlcdFreq_Santa Barbara`,`nlcdFreq_Santa Clara`,`nlcdFreq_Santa Cruz`,
+                         nlcdFreq_Shasta,nlcdFreq_Sierra,nlcdFreq_Siskiyou,nlcdFreq_Solano,nlcdFreq_Sonoma,
+                         nlcdFreq_Stanislaus,nlcdFreq_Sutter,nlcdFreq_Tehama,nlcdFreq_Trinity,nlcdFreq_Tulare,
+                         nlcdFreq_Tuolumne,nlcdFreq_Ventura,nlcdFreq_Yolo, nlcdFreq_Yuba)
+rownames(nlcd_histograms) <- sort(nlcd_caCounties$County.Name)
+
